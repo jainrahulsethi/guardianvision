@@ -1,0 +1,50 @@
+Medical Safety Checklist
+General Facility Safety
+Adequate Lighting: Ensure well-lit areas in patient rooms, hallways, and emergency exits.
+(Tags: “lighting,” “facility safety”)
+
+Wet Floors: Highlight if any floors are wet, creating a slip hazard.
+(Tags: “wet floors,” “slip hazards”)
+
+Water or Gas Leakage: Identify any visible water or gas leaks in the facility.
+(Tags: “leakage,” “facility safety”)
+
+Fire Extinguishers: Ensure fire extinguishers are visible and easily accessible throughout the facility.
+(Tags: “fire safety,” “facility safety”)
+
+Hand Sanitizers: Alcohol-based hand sanitizers must be visible and readily accessible in all areas.
+(Tags: “sanitizers,” “hygiene,” “facility safety”)
+
+Patient and Visitor Safety
+Fall Prevention at Bedside: Ensure fall prevention measures are visible or in place at the patient’s bedside.
+(Tags: “patient safety,” “fall prevention”)
+
+Handicap Assistance: Highlight if any handicapped patient is left unattended.
+(Tags: “patient care,” “handicap assistance”)
+
+First Aid Kits: Ensure first aid kits are easily accessible across multiple facility areas.
+(Tags: “emergency preparedness,” “first aid”)
+
+PPE and Hygiene Protocols
+Stethoscope and Apron: Anyone wearing a stethoscope should also wear an apron.
+(Tags: “PPE,” “medical staff”)
+
+Waste Handling PPE: Staff handling waste should wear masks and gloves.
+(Tags: “PPE,” “waste management”)
+
+Ventilation: Proper ventilation should be maintained, especially in areas dealing with airborne diseases.
+(Tags: “ventilation,” “airborne diseases”)
+
+Insect or Pest Control: Highlight any visible insects or pests on the floor to ensure a sterile environment.
+(Tags: “pest control,” “hygiene”)
+
+Equipment and Hazard Identification
+Medical Equipment on Floor: Highlight any medical equipment, medicines, or glassware found on the floor.
+(Tags: “equipment safety,” “hazards”)
+
+Visible Fall Hazards: Identify any visible fall hazards or obstructions that could pose a danger to patients and staff.
+(Tags: “fall hazards,” “patient safety”)
+
+Violence or Disturbance: Highlight any instances of violence or disturbances on the premises.
+(Tags: “security,” “facility safety”)
+

@@ -1,0 +1,79 @@
+ Petrol Pump Safety Checklist
+General Safety and Signage
+Safety Signage: Clear and visible signage posted (e.g., "No Smoking," "Turn Off Engine," "No Mobile Phones").
+(Tags: “signage,” “general safety”)
+
+Adequate Lighting: Ensure well-lit areas at fuel dispensers, exits, and entrances.
+(Tags: “lighting,” “facility safety”)
+
+Emergency Stop Buttons: Emergency stop buttons for fuel dispensers must be accessible and functional.
+(Tags: “emergency preparedness,” “fuel dispensers”)
+
+Unauthorized Access Prevention: Proper fencing and barriers to restrict unauthorized access to sensitive areas.
+(Tags: “security,” “access control”)
+
+Fire Safety
+Fire Extinguishers and Equipment: Foam and CO2 fire extinguishers, sand buckets, and fire blankets strategically placed and easily accessible.
+(Tags: “fire safety,” “fire extinguishers”)
+
+No Smoking or Open Flames: Strict prohibition of smoking and open flames on-site, with enforcement measures in place.
+(Tags: “fire safety,” “smoking prohibition”)
+
+Fueling Area Safety
+Combustible Material Control: Highlight any combustible materials around the fueling area.
+(Tags: “fueling area,” “combustible materials”)
+
+Leak Detection: Highlight any leaks from nozzles and hoses.
+(Tags: “fuel leaks,” “equipment safety”)
+
+Damaged Equipment: Highlight any damaged nozzles or hoses.
+(Tags: “equipment damage,” “fueling area”)
+
+Fuel Overfilling: Identify any instances of fuel overfilling in vehicles.
+(Tags: “fueling procedure,” “overfill prevention”)
+
+Fuel Spills: Highlight any fuel spills on the floor in fueling areas.
+(Tags: “fuel spills,” “hazard control”)
+
+Cables and Wires: Highlight any cables or wires in areas with potential fuel spills or water exposure.
+(Tags: “fueling area,” “electrical safety”)
+
+Behavioral Safety
+Smoking Violation: Highlight if anyone is smoking in the fueling area.
+(Tags: “behavioral safety,” “smoking prohibition”)
+
+Phone Use Violation: Highlight if anyone is using a phone while fueling.
+(Tags: “behavioral safety,” “no mobile phones”)
+
+Vehicle Movement During Fueling: Highlight if any vehicle is moving or vibrating during fueling.
+(Tags: “fueling safety,” “vehicle safety”)
+
+No Electronic Devices During Fueling: No use of electronic devices allowed while fueling.
+(Tags: “fueling safety,” “no electronic devices”)
+
+Unauthorized Containers: Fueling should not occur in unauthorized containers like bottles or drums.
+(Tags: “container safety,” “fueling procedure”)
+
+PPE and Worker Safety
+PPE for Maintenance Workers: Workers repairing pumps must wear PPE, gloves, and eye protection.
+(Tags: “PPE,” “worker safety”)
+
+PPE for Unloading Workers: PPE, including gloves and aprons, should be visible on anyone unloading fuel trucks.
+(Tags: “PPE,” “fuel unloading”)
+
+Helmet for Unloading Workers: Workers unloading trucks should wear a hard helmet.
+(Tags: “PPE,” “fuel unloading”)
+
+Waste and Hazardous Material Management
+Hazardous Waste Disposal: Hazardous waste, including fuel filters, used oil, and absorbent materials, should be in designated disposal areas only.
+(Tags: “hazardous waste,” “waste management”)
+Fuel Delivery and Unloading Protocols
+Delivery Truck Parking: Delivery trucks should only be parked near the tank for unloading.
+(Tags: “unloading safety,” “delivery area”)
+
+Restricted Access During Unloading: Clear area around the fuel delivery point, with barriers to prevent customer access during unloading.
+(Tags: “unloading safety,” “restricted area”)
+
+No Fueling During Unloading: No vehicle should be fueled when fuel unloading is in progress.
+(Tags: “unloading safety,” “fueling restriction”)
+
