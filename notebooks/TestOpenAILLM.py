@@ -51,7 +51,3 @@ response = client.chat.completions.create(
 
 # Print the assistant's response
 print(response.choices[0].message.content)
-
-# COMMAND ----------
-
-
