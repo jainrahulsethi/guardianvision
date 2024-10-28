@@ -82,6 +82,11 @@ class GuardianVisionRAG:
 
 # COMMAND ----------
 
+import os
+len(os.listdir("/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_data_construction/safe"))
+
+# COMMAND ----------
+
 import base64
 from openai import OpenAI
 import os

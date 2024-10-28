@@ -53,6 +53,19 @@ Construction Site Dataset
     note = { visited on 2024-10-24 },
 }
 
+@misc{
+    construction-site-safety_dataset,
+    title = { Construction Site Safety Dataset },
+    type = { Open Source Dataset },
+    author = { Roboflow Universe Projects },
+    howpublished = { \url{ https://universe.roboflow.com/roboflow-universe-projects/construction-site-safety } },
+    url = { https://universe.roboflow.com/roboflow-universe-projects/construction-site-safety },
+    journal = { Roboflow Universe },
+    publisher = { Roboflow },
+    year = { 2024 },
+    month = { aug },
+    note = { visited on 2024-10-28 },
+    }
 Other Sources
 (Add citation information for other sources used in the project, following a similar format as above.)
 
