@@ -87,7 +87,10 @@ len(os.listdir("/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_d
 
 # COMMAND ----------
 
+from PIL import Image
 import base64
+import io
+
 from openai import OpenAI
 import os
 
@@ -119,9 +122,24 @@ class GuardianVisionAnalyzer:
         """
         return dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
 
+    def _resize_image_if_needed(self, image):
+        """
+        Resizes the image to a maximum resolution of 1024x768 if it exceeds these dimensions.
+        
+        Parameters:
+            image (PIL.Image.Image): The image to be resized.
+        
+        Returns:
+            PIL.Image.Image: The resized image if necessary, otherwise the original image.
+        """
+        max_width, max_height = 1024, 768
+        if image.width > max_width or image.height > max_height:
+            image.thumbnail((max_width, max_height))
+        return image
+
     def _encode_image(self, image_path):
         """
-        Encodes the image as a base64 string.
+        Encodes the image as a base64 string after resizing if necessary.
         
         Parameters:
             image_path (str): Path to the image file.
@@ -129,8 +147,11 @@ class GuardianVisionAnalyzer:
         Returns:
             str: The base64 encoded string of the image.
         """
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode("utf-8")
+        with Image.open(image_path) as image:
+            resized_image = self._resize_image_if_needed(image)
+            buffered = io.BytesIO()
+            resized_image.save(buffered, format="PNG")
+            return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
     def analyze_image(self, image_path, prompt):
         """
@@ -177,16 +198,23 @@ result = rag_search.perform_search(query_text)
 #STEP 2:- In case the result is not found, then use another LLM to find out the correct safety checklist basis LLM
 #TBD
 
+
 #STEP 3:- Use output from Step 1 to form a correct prompt and pass it to the Image Analyzer
 
 image_analyzer = GuardianVisionAnalyzer(
     api_base_url="https://adb-3971841089204274.14.azuredatabricks.net/serving-endpoints"
 )
 image_path = "/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_data_construction/unsafe/002564baec48136553cf02.jpg"
-prompt = "Basis the given checklist, assign a safety score from 1 to 5. Only look for obvious signs of threats, some of the items may not be visible in the image. Judge only basis what you see. Your output should be strict python list [safety rating, one sentence description]. Here is the checklist:- " +result
 
+
+prompt = "Basis the given checklist, assign a safety score from 1 to 5. Use your intelligence to deduce the correct score. Judge only basis what you see. Your output should be strict python list [safety rating, one sentence description]. Here is the checklist:- Hard hats are strictly mandatory" +result
+
+prompt = "Basis the given checklist, assign a safety score from 1 to 5. Use your intelligence to deduce the correct score. Judge only basis what you see. Your output should be strict python list [safety rating, one sentence description]. Here is the checklist: [['Hard Hats: Worn at all times on site. (Essential for head injury prevention)'], ['Harness Use: Required for workers at elevated locations. If no harness where required, the rating should be 2 or lower strictly (Critical for fall prevention)'], ['Guardrails and Nets: For areas where falls are a risk. (Necessary for height safety)'], ['LOTO Procedures: Lockout/tagout for live circuits. (Prevents electrical accidents)'], ['Respiratory Protection: Use if exposed to dust, fumes, or toxic substances. (Protects against inhalation hazards)'], ['Anchorage Points: Secure points for fall arrest equipment. (Supports safety when working at heights)'], ['Flammable Material Precautions: No open flames near flammable substances. (Fire prevention measure)'], ['Eye Protection: Safety goggles or face shields when needed. (Prevents eye injuries)'], ['Emergency Exits: Marked and unobstructed. (Essential for safe evacuation)'], ['Restricted Area Signage: Clear signs for hazardous zones. (Awareness to prevent entry into dangerous areas)'], ['High-Visibility Vests: Required for visibility. (Reduces risk of accidents)'], ['Ear Protection: Required in high-noise areas. (Protects hearing)'], ['Non-Slip Footwear: Essential for all workers. (Prevents slips and falls)'], ['Cover or Mark Floor Openings: To prevent falls. (Reduces fall hazards)'], ['Scaffold Training: Workers must be trained in safe practices. (Ensures scaffold safety)'], ['Scaffolding Access: Provide ladders or stairs for scaffold access. (Prevents falls when using scaffolds)'], ['Use of Slings, Chains, and Ropes: For lifting heavy materials safely. (Prevents injury during material handling)'], ['Proper Lifting Techniques: Bend knees, keep back straight. (Prevents strain anund injury)'], ['Chemical Handling Gloves: Specific types based on tasks. (Protects against chemical exposure)'], ['Electrical Work Gloves: Specific types based on tasks. (Prevents electrical shock)'], ['Sharp Object Handling Gloves: Specific types based on tasks. (Prevents cuts and punctures)'], ['High-Voltage Signage: Required around electrical equipment. (Warning against high voltage hazards)'], ['Barricades and Warnings: Around excavation sites. (Prevents accidental entry)'], ['Hazardous Substance Labeling: Proper labeling and storage. (Minimizes exposure risks)'], ['Vibration-Reducing Gloves/Tools: Use for high-vibration tasks. (Reduces vibration exposure)'], ['Cord Protection: Prevent damage and keep cords clear of walkways. (Reduces tripping hazards)'], ['Workstation Adjustments: For worker comfort where applicable. (Improves ergonomics)'], ['Waste Disposal: Proper handling of hazardous and non-hazardous materials. (Maintains site hygiene and safety)']]"
+
+
+'''
 result = image_analyzer.analyze_image(image_path, prompt)
-print("Analysis Result:\n", result)
+print("Analysis Result:\n", result)'''
 
 # Initialize the GuardianVisionAnalyzer
 image_analyzer = GuardianVisionAnalyzer(
@@ -211,9 +239,11 @@ results_dict = {}
 for filename in os.listdir(directory_path):
     if filename.endswith((".jpg", ".png", ".jpeg")):  # Filter for image files
         image_path = os.path.join(directory_path, filename)
+        
         try:
             # Analyze the image using the dynamic prompt
-            result = image_analyzer.analyze_image(image_path, base_prompt)
+            result = image_analyzer.analyze_image(image_path, prompt)
+            print(f"Image: {image_path}, Analysis Result: {result}")
             # Store the result in the dictionary with the image name as the key
             results_dict[filename] = result
         except Exception as e:
@@ -224,6 +254,30 @@ for image_name, analysis_result in results_dict.items():
     print(f"Image: {image_name}, Analysis Result: {analysis_result}")
 
 
+
+# COMMAND ----------
+
+print(prompt)
+
+# COMMAND ----------
+
+import ast
+
+count_dict = dict()
+
+for item in results_dict:
+    # Convert the string to an actual list
+    print(results_dict[item])
+    if results_dict[item].contains('python'):
+        continue
+    actual_list = ast.literal_eval(results_dict[item])
+    #print(actual_list)
+    number = actual_list[0]
+    
+    if number not in count_dict:
+        count_dict[number] = 1
+    else:
+        count_dict[number] += 1
 
 # COMMAND ----------
 
