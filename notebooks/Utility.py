@@ -5,7 +5,6 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
-# Databricks notebook source
 # MAGIC %pip install -qqqq -U databricks-vectorsearch 
 # MAGIC dbutils.library.restartPython()
 
@@ -81,11 +80,13 @@ class GuardianVisionRAG:
             query_text=query_text
         )
 
+
         # Return the top result if available
         if result_set and result_set['result']['data_array']:
             return result_set['result']['data_array'][0][0]
         else:
             return "None"
+prompt = "Basis the given checklist, assign a safety score from 1 to 5. Use your intelligence to deduce the correct score. Judge only basis what you see. Your output should be strict python list [safety rating, one sentence description]. Here is the checklist: [['Hard Hats: Worn at all times on site. (Essential for head injury prevention)'], ['Harness Use: Required for workers at elevated locations. If no harness where required, the rating should be 2 or lower strictly (Critical for fall prevention)'], ['Guardrails and Nets: For areas where falls are a risk. (Necessary for height safety)'], ['LOTO Procedures: Lockout/tagout for live circuits. (Prevents electrical accidents)'], ['Respiratory Protection: Use if exposed to dust, fumes, or toxic substances. (Protects against inhalation hazards)'], ['Anchorage Points: Secure points for fall arrest equipment. (Supports safety when working at heights)'], ['Flammable Material Precautions: No open flames near flammable substances. (Fire prevention measure)'], ['Eye Protection: Safety goggles or face shields when needed. (Prevents eye injuries)'], ['Emergency Exits: Marked and unobstructed. (Essential for safe evacuation)'], ['Restricted Area Signage: Clear signs for hazardous zones. (Awareness to prevent entry into dangerous areas)'], ['High-Visibility Vests: Required for visibility. (Reduces risk of accidents)'], ['Ear Protection: Required in high-noise areas. (Protects hearing)'], ['Non-Slip Footwear: Essential for all workers. (Prevents slips and falls)'], ['Cover or Mark Floor Openings: To prevent falls. (Reduces fall hazards)'], ['Scaffold Training: Workers must be trained in safe practices. (Ensures scaffold safety)'], ['Scaffolding Access: Provide ladders or stairs for scaffold access. (Prevents falls when using scaffolds)'], ['Use of Slings, Chains, and Ropes: For lifting heavy materials safely. (Prevents injury during material handling)'], ['Proper Lifting Techniques: Bend knees, keep back straight. (Prevents strain anund injury)'], ['Chemical Handling Gloves: Specific types based on tasks. (Protects against chemical exposure)'], ['Electrical Work Gloves: Specific types based on tasks. (Prevents electrical shock)'], ['Sharp Object Handling Gloves: Specific types based on tasks. (Prevents cuts and punctures)'], ['High-Voltage Signage: Required around electrical equipment. (Warning against high voltage hazards)'], ['Barricades and Warnings: Around excavation sites. (Prevents accidental entry)'], ['Hazardous Substance Labeling: Proper labeling and storage. (Minimizes exposure risks)'], ['Vibration-Reducing Gloves/Tools: Use for high-vibration tasks. (Reduces vibration exposure)'], ['Cord Protection: Prevent damage and keep cords clear of walkways. (Reduces tripping hazards)'], ['Workstation Adjustments: For worker comfort where applicable. (Improves ergonomics)'], ['Waste Disposal: Proper handling of hazardous and non-hazardous materials. (Maintains site hygiene and safety)']]"
 
 # COMMAND ----------
 
@@ -188,5 +189,3 @@ if __name__ == "__main__":
     #image_path = "/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_data_construction/unsafe/002564baec48136553cf02.jpg"
 
 
-
-# COMMAND ----------

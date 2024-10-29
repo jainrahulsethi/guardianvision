@@ -1,5 +1,5 @@
 # Databricks notebook source
-# DBTITLE 1,send message to service bus
+# DBTITLE 1,read incremental data from adls to service bus
 from pyspark.sql.types import StructType, StringType, TimestampType, LongType, BinaryType
 from azure.servicebus import ServiceBusClient, ServiceBusMessage
 import json
@@ -14,7 +14,7 @@ schema = StructType() \
     .add("content", BinaryType())
 
 # Azure Service Bus configuration
-connection_str = "Endpoint=sb://guardianvision.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=D7kHlQiQGONEDZ6J3h7WKJk0hqJp0C3HZ+ASbGjQt/c="  # Replace with your connection string
+connection_str =dbutils.secrets.get(scope="guardian_connection_str", key="connection_str_Service_Bus")  # Replace with your connection string
 queue_name = "guardianvision"  # Replace with your queue name
 
 # Define the function to send each batch to Service Bus
@@ -49,7 +49,7 @@ image_stream = (
     .option("cloudFiles.includeExistingFiles", "true")  # Include existing files on the first run
     .option("cloudFiles.useIncrementalListing", "true")  # Enable incremental listing
     .schema(schema)
-    .load("/mnt/s3/guardianvision/Guardian_Vision_Akshay/*")  # Use wildcard to include all subdirectories
+    .load("/mnt/retaildls/guardianvision/*")  # Use wildcard to include all subdirectories
 )
 
 # Prepare the DataFrame with necessary transformations
@@ -72,36 +72,3 @@ query = image_stream.writeStream \
 
 
 
-
-# COMMAND ----------
-
-# DBTITLE 1,delete message in Servcie Bus
-# from azure.servicebus import ServiceBusClient
-
-# # Azure Service Bus configuration
-# # Azure Service Bus configuration
-# connection_str = "Endpoint=sb://guardianvision.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=D7kHlQiQGONEDZ6J3h7WKJk0hqJp0C3HZ+ASbGjQt/c="  # Replace with your connection string
-# queue_name = "guardianvision"  # Replace with your queue name
-
-# # Create a Service Bus client
-# servicebus_client = ServiceBusClient.from_connection_string(conn_str=connection_str)
-
-# # Function to receive and delete messages from the queue
-# def delete_messages():
-#     with servicebus_client:
-#         receiver = servicebus_client.get_queue_receiver(queue_name=queue_name)
-#         with receiver:
-#             # Receive messages from the queue
-#             messages = receiver.receive_messages(max_message_count=100)  # Adjust as needed
-#             for message in messages:
-#                 # Correctly access the message properties
-#                 print(f"Deleting message ID: {message.message_id}, Body: {str(message)}")
-#                 # Complete the message to delete it
-#                 receiver.complete_message(message)
-
-# # Call the function to delete messages
-# delete_messages()
-
-# COMMAND ----------
-
-# dbutils.fs.rm('/mnt/checkpoint/guardianvision',True)
