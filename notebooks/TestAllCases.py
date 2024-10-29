@@ -82,6 +82,16 @@ class GuardianVisionRAG:
 
 # COMMAND ----------
 
+rag_search = GuardianVisionRAG()
+
+query_text = "Safety checklist for construction activity with scafolding and heavy machinery" 
+#with heavy machinery operation. Make sure not to miss on the applicable high priority items"
+result = rag_search.perform_search(query_text)
+
+print(result)
+
+# COMMAND ----------
+
 import os
 len(os.listdir("/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_data_construction/safe"))
 
@@ -93,6 +103,8 @@ import io
 
 from openai import OpenAI
 import os
+import json
+import re
 
 class GuardianVisionAnalyzer:
     """
@@ -152,6 +164,25 @@ class GuardianVisionAnalyzer:
             buffered = io.BytesIO()
             resized_image.save(buffered, format="PNG")
             return base64.b64encode(buffered.getvalue()).decode("utf-8")
+        
+    def parse_llm_response(self, response):
+        try:
+            # Extract the response content
+            #llm_response = response.choices[0].message.content
+
+            # Remove the code block markers
+            cleaned_response = re.sub(r"```(?:json)?", "", llm_response).strip()
+
+            # Attempt to parse the cleaned JSON string
+            response_dict = json.loads(cleaned_response)
+            
+            return response_dict
+
+        except (json.JSONDecodeError, AttributeError) as e:
+            # Handle invalid JSON or unexpected output
+            print("Warning: Unexpected response format. Returning None.")
+            print(f"Error details: {e}")
+            return None
 
     def analyze_image(self, image_path, prompt):
         """
@@ -182,7 +213,10 @@ class GuardianVisionAnalyzer:
             temperature=0.0,
         )
 
-        return response.choices[0].message.content
+        llm_response =  response.choices[0].message.content
+    
+        return self.parse_llm_response(llm_response)
+
 
 
 # COMMAND ----------
@@ -206,15 +240,7 @@ image_analyzer = GuardianVisionAnalyzer(
 )
 image_path = "/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_data_construction/unsafe/002564baec48136553cf02.jpg"
 
-
-prompt = "Basis the given checklist, assign a safety score from 1 to 5. Use your intelligence to deduce the correct score. Judge only basis what you see. Your output should be strict python list [safety rating, one sentence description]. Here is the checklist:- Hard hats are strictly mandatory" +result
-
-prompt = "Basis the given checklist, assign a safety score from 1 to 5. Use your intelligence to deduce the correct score. Judge only basis what you see. Your output should be strict python list [safety rating, one sentence description]. Here is the checklist: [['Hard Hats: Worn at all times on site. (Essential for head injury prevention)'], ['Harness Use: Required for workers at elevated locations. If no harness where required, the rating should be 2 or lower strictly (Critical for fall prevention)'], ['Guardrails and Nets: For areas where falls are a risk. (Necessary for height safety)'], ['LOTO Procedures: Lockout/tagout for live circuits. (Prevents electrical accidents)'], ['Respiratory Protection: Use if exposed to dust, fumes, or toxic substances. (Protects against inhalation hazards)'], ['Anchorage Points: Secure points for fall arrest equipment. (Supports safety when working at heights)'], ['Flammable Material Precautions: No open flames near flammable substances. (Fire prevention measure)'], ['Eye Protection: Safety goggles or face shields when needed. (Prevents eye injuries)'], ['Emergency Exits: Marked and unobstructed. (Essential for safe evacuation)'], ['Restricted Area Signage: Clear signs for hazardous zones. (Awareness to prevent entry into dangerous areas)'], ['High-Visibility Vests: Required for visibility. (Reduces risk of accidents)'], ['Ear Protection: Required in high-noise areas. (Protects hearing)'], ['Non-Slip Footwear: Essential for all workers. (Prevents slips and falls)'], ['Cover or Mark Floor Openings: To prevent falls. (Reduces fall hazards)'], ['Scaffold Training: Workers must be trained in safe practices. (Ensures scaffold safety)'], ['Scaffolding Access: Provide ladders or stairs for scaffold access. (Prevents falls when using scaffolds)'], ['Use of Slings, Chains, and Ropes: For lifting heavy materials safely. (Prevents injury during material handling)'], ['Proper Lifting Techniques: Bend knees, keep back straight. (Prevents strain anund injury)'], ['Chemical Handling Gloves: Specific types based on tasks. (Protects against chemical exposure)'], ['Electrical Work Gloves: Specific types based on tasks. (Prevents electrical shock)'], ['Sharp Object Handling Gloves: Specific types based on tasks. (Prevents cuts and punctures)'], ['High-Voltage Signage: Required around electrical equipment. (Warning against high voltage hazards)'], ['Barricades and Warnings: Around excavation sites. (Prevents accidental entry)'], ['Hazardous Substance Labeling: Proper labeling and storage. (Minimizes exposure risks)'], ['Vibration-Reducing Gloves/Tools: Use for high-vibration tasks. (Reduces vibration exposure)'], ['Cord Protection: Prevent damage and keep cords clear of walkways. (Reduces tripping hazards)'], ['Workstation Adjustments: For worker comfort where applicable. (Improves ergonomics)'], ['Waste Disposal: Proper handling of hazardous and non-hazardous materials. (Maintains site hygiene and safety)']]"
-
-
-'''
-result = image_analyzer.analyze_image(image_path, prompt)
-print("Analysis Result:\n", result)'''
+prompt = "Based on the provided checklist, assign a safety score from 1 to 5. Assess only what is visible in the image, and avoid penalizing for items that may not be captured due to camera limitations. For unsafe cases, the rating should be only 1 or 2 and for safe 4 or 5. Your response should be a JSON object with the following keys: safety_rating, safety_violation_category (optional, may be null if no violation is detected), and one_sentence_description. Here is the checklist: " + result
 
 # Initialize the GuardianVisionAnalyzer
 image_analyzer = GuardianVisionAnalyzer(
@@ -222,15 +248,8 @@ image_analyzer = GuardianVisionAnalyzer(
 )
 
 # Directory containing the images
-directory_path = "/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_data_construction/unsafe"
+directory_path = "/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_data_construction/safe"
 
-# Prompt to be used for analysis
-base_prompt = (
-    "Basis the given checklist, assign a safety score from 1 to 5. Only look for obvious signs of threats, "
-    "some of the items may not be visible in the image. Judge only basis what you see. "
-    "Your output should be a strict python list [safety rating, one sentence description]. "
-    "Here is the checklist:- " + result
-)
 
 # Dictionary to store the results
 results_dict = {}
@@ -243,9 +262,11 @@ for filename in os.listdir(directory_path):
         try:
             # Analyze the image using the dynamic prompt
             result = image_analyzer.analyze_image(image_path, prompt)
-            print(f"Image: {image_path}, Analysis Result: {result}")
+            print(result)
+            #print(f"Image: {image_path}, Analysis Result: {result}")
             # Store the result in the dictionary with the image name as the key
             results_dict[filename] = result
+            break
         except Exception as e:
             print(f"Error processing {filename}: {e}")
 
@@ -262,17 +283,25 @@ print(prompt)
 # COMMAND ----------
 
 import ast
+import json
+import re
 
 count_dict = dict()
 
 for item in results_dict:
     # Convert the string to an actual list
-    print(results_dict[item])
-    if results_dict[item].contains('python'):
-        continue
-    actual_list = ast.literal_eval(results_dict[item])
+    llm_response = results_dict[item]
+
+    # Remove the code block markers using regex
+    cleaned_response = re.sub(r"```(?:json)?", "", llm_response).strip()
+
+    # Convert the cleaned JSON string to a Python dictionary
+    response_dict = json.loads(cleaned_response)
+
+    # Print or use the dictionary
+    print(response_dict)
     #print(actual_list)
-    number = actual_list[0]
+    number = response_dict['safety_rating']
     
     if number not in count_dict:
         count_dict[number] = 1
@@ -281,7 +310,7 @@ for item in results_dict:
 
 # COMMAND ----------
 
-print(results_dict)
+print(count_dict)
 
 # COMMAND ----------
 
