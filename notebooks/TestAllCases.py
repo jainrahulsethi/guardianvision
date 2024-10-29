@@ -184,6 +184,39 @@ class GuardianVisionAnalyzer:
             print(f"Error details: {e}")
             return None
 
+    def generate_description_for_prompt(self, image_path):
+        """
+        Analyzes the image using OpenAI's GPT model and returns the response based on the provided prompt.
+        
+        Parameters:
+            image_path (str): Path to the image file to be analyzed.
+            prompt (str): The user-defined prompt/question to query the image.
+        
+        Returns:
+            str: The response content from the OpenAI model.
+        """
+        base64_image = self._encode_image(image_path)
+        
+        # Send request with image and dynamic text prompt
+        response = self.client.chat.completions.create(
+            model="gpt4o",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that reads images!"},
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Generate a one line description for the activity in the image below. For example: Construction activity with scaffold and heavy machinery operation"},
+                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}}
+                    ]
+                }
+            ],
+            temperature=0.0,
+        )
+
+        llm_response =  response.choices[0].message.content
+    
+        return llm_response
+
     def analyze_image(self, image_path, prompt):
         """
         Analyzes the image using OpenAI's GPT model and returns the response based on the provided prompt.
@@ -216,6 +249,10 @@ class GuardianVisionAnalyzer:
         llm_response =  response.choices[0].message.content
     
         return self.parse_llm_response(llm_response)
+
+
+
+# COMMAND ----------
 
 
 
@@ -261,7 +298,8 @@ for filename in os.listdir(directory_path):
         
         try:
             # Analyze the image using the dynamic prompt
-            result = image_analyzer.analyze_image(image_path, prompt)
+            result = image_analyzer.generate_description_for_prompt(image_path)
+            #image_analyzer.analyze_image(image_path, prompt)
             print(result)
             #print(f"Image: {image_path}, Analysis Result: {result}")
             # Store the result in the dictionary with the image name as the key
