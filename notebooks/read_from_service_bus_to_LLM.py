@@ -19,6 +19,13 @@ rag_search = GuardianVisionRAG()
 data_rows = []
 max_rows_before_save = 10
 
+# Initialize Spark session
+spark = SparkSession.builder.appName("servicebus_LLm").getOrCreate()
+
+# Read data from the table
+client_df = spark.sql("SELECT cam_id, client_id, site_id, prompt_to_use, activity_description, site_manager_email FROM guardianvision.client_data WHERE is_active = TRUE")
+
+print("client_df", client_df)
 #fetch desc from master table if available If not available call this generate_description_for_prompt and get query text
 
 query_text = "Safety checklist for construction activity with scafolding and heavy machinery" 

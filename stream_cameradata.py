@@ -80,11 +80,3 @@ query = (streaming_camera_df
          .foreachBatch(process_batch)
          .option("checkpointLocation", checkpoint_loc)  # Adjusted checkpoint location
          .start())
-
-# COMMAND ----------
-
-print("---- END OF TASK ---")
-# import subprocess
-# # Call the external capture_frame.py script
-# capture_frame_path = "/dbfs/tmp/gaurdianvision/capture_frame.py"
-# subprocess.run(["python3", capture_frame_path, "rtsp://RTSP:Remote%4012345@197.243.236.48:554/Streaming/Channels/2", str(1), str(1), str(22)], check=True)
