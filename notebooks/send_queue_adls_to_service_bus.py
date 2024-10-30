@@ -1,10 +1,15 @@
 # Databricks notebook source
+!pip install azure.servicebus
+dbutils.library.restartPython() 
+
+# COMMAND ----------
+
 # DBTITLE 1,read incremental data from adls to service bus
 from pyspark.sql.types import StructType, StringType, TimestampType, LongType, BinaryType
 from azure.servicebus import ServiceBusClient, ServiceBusMessage
 import json
 import uuid
-from pyspark.sql.functions import regexp_extract
+from pyspark.sql.functions import regexp_extract, concat_ws
 
 # Define schema for the binary file metadata
 schema = StructType() \
@@ -33,7 +38,7 @@ def send_batch_to_service_bus(batch_df, batch_id):
                 
                 # Construct a JSON message for each row
                 message_body = {
-                    "id": f"{row.stationid_camid}_{random_id}",
+                    "id": f"{row.stationid_camid}",
                     "filepath": row.path
                 }
                 message = ServiceBusMessage(json.dumps(message_body))
@@ -55,7 +60,11 @@ image_stream = (
 # Prepare the DataFrame with necessary transformations
 def transform_and_send(batch_df, batch_id):
     # Extract the station ID and camera ID from the file path
-    transformed_df = batch_df.withColumn("stationid_camid", regexp_extract("path", r"/(Camera_\d+_Site_\d+)/", 1)).select('path', 'stationid_camid')
+    transformed_df = batch_df \
+        .withColumn("site_id", regexp_extract("path", r"frame_(\d+)_\d+_", 1)) \
+        .withColumn("cam_id", regexp_extract("path", r"frame_\d+_(\d+)_", 1)) \
+        .withColumn("stationid_camid", concat_ws("_", "site_id", "cam_id")) \
+        .select("path", "stationid_camid")
     
     # Send the transformed batch to Azure Service Bus
     send_batch_to_service_bus(transformed_df, batch_id)

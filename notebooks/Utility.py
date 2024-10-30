@@ -1,6 +1,7 @@
 # Databricks notebook source
 !pip install -qqqq -U databricks-vectorsearch
 !pip install openai
+!pip install azure.servicebus
 dbutils.library.restartPython()
 
 # COMMAND ----------
