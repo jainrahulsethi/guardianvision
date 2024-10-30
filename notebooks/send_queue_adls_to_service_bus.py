@@ -49,7 +49,7 @@ image_stream = (
     .option("cloudFiles.includeExistingFiles", "true")  # Include existing files on the first run
     .option("cloudFiles.useIncrementalListing", "true")  # Enable incremental listing
     .schema(schema)
-    .load("/mnt/retaildls/guardianvision/*")  # Use wildcard to include all subdirectories
+    .load("/mnt/retaildls/guardianvision/frame_data/*")  # Use wildcard to include all subdirectories
 )
 
 # Prepare the DataFrame with necessary transformations
@@ -66,7 +66,7 @@ checkpoint_path = "/mnt/checkpoint/guardianvision"
 # Stream data to Azure Service Bus using foreachBatch with checkpointing
 query = image_stream.writeStream \
     .foreachBatch(transform_and_send) \
-    .trigger(continuous="1 second") \
+    .trigger(processingTime="1 second") \
     .option("checkpointLocation", checkpoint_path) \
     .start()
 

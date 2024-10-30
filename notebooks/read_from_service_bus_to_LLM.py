@@ -31,7 +31,9 @@ spark = SparkSession.builder.getOrCreate()
 # Schema for DataFrame
 schema = StructType([
     StructField("image_path", StringType(), True),
-    StructField("cam_id", StringType(), True),
+    StructField("client_id", StringType(), True), 
+    StructField("site_id", StringType(), True),  # Update for site_id
+    StructField("cam_id", StringType(), True),   
     StructField("safety_rating", StringType(), True),
     StructField("safety_violation_category", StringType(), True),
     StructField("one_sentence_description", StringType(), True)
@@ -63,12 +65,16 @@ def receive_and_process_messages(analyzer):
                         image_path = image_path.replace("dbfs:", "/dbfs", 1)
                         print(f"Processing image at: {image_path}")
 
-                        # Extract cam_id from the image path
-                        match = re.search(r"frame_(\d+)_", image_path)
+                        # Extract site_id and cam_id from the image path
+                        match = re.search(r"frame_(\d+)_(\d+)_", image_path)
                         if match:
-                            cam_id = int(match.group(1))
+                            site_id = int(match.group(1))  # Extract site_id
+                            cam_id = int(match.group(2))    # Extract cam_id
                         else:
+                            site_id = None 
                             cam_id = None 
+                            
+                        client_id = image_path.split("/")[-2]
 
                         # Analyze image and retrieve result JSON
                         result_str = analyzer.analyze_image(image_path, prompt)
@@ -78,17 +84,16 @@ def receive_and_process_messages(analyzer):
                         # Append data to rows list
                         data_rows.append({
                             "image_path": image_path,
+                            "client_id": client_id,
+                            "site_id": site_id,  # Include site_id
                             "cam_id": cam_id,
                             "safety_rating": result_str["safety_rating"],
                             "safety_violation_category": result_str["safety_violation_category"],
                             "one_sentence_description": result_str["one_sentence_description"]
                         })
 
-                            # Complete the message
+                        # Complete the message
                         receiver.complete_message(msg)
-                        # except Exception as e:
-                        #     print(f"Error processing message: {e}")
-                        #     pass
 
     print("Queue is empty.")
 
@@ -104,20 +109,14 @@ if data_rows:
 else:
     print("No data was collected.")
 
-
 # COMMAND ----------
 
 # DBTITLE 1,Transformations
 from datetime import datetime
 from pyspark.sql.functions import current_timestamp, col
-safety_df = df.withColumn("Last_updated_On", current_timestamp()).withColumn("cam_id", col("cam_id").cast("int")).withColumn("safety_rating", col("safety_rating").cast("int")).withColumnRenamed('one_sentence_description','description')
+safety_df = df.withColumn("Last_updated_On", current_timestamp()).withColumn("cam_id", col("cam_id").cast("int")).withColumn("safety_rating", col("safety_rating").cast("int")).withColumnRenamed('one_sentence_description','description').withColumn("site_id", col("site_id").cast("int")).withColumn("safety_rating", col("safety_rating").cast("int"))
 
 # COMMAND ----------
 
 # DBTITLE 1,append to delta table
 safety_df.write.mode("append").format("delta").saveAsTable("guardianvision.safety_assessment_log")
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC select * from guardianvision.safety_assessment_log
