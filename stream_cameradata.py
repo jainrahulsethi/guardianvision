@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 spark = SparkSession.builder.appName("CameraStreaming").getOrCreate()
 
 # Read data from the table
-camera_df = spark.sql("SELECT cam_id, rtsp_url FROM guardianvision.client_data WHERE is_active = TRUE")
+camera_df = spark.sql("SELECT cam_id, rtsp_url, client_id, site_id FROM guardianvision.client_data WHERE is_active = TRUE")
 
 # Show the results
 camera_df.show()
@@ -48,12 +48,14 @@ def call_capture_script(partition):
         for row in partition:
             rtsp_url = row["rtsp_url"]
             camera_id = row["cam_id"]
+            client_id = row["client_id"]
+            site_id = row["site_id"]
             print(f"Attempting to capture frame for camera_id: {camera_id}, rtsp_url: {rtsp_url}")
             # Run each camera capture command in a separate process
             futures.append(
                 executor.submit(
                     subprocess.run,
-                    ["python3", capture_frame_path, rtsp_url, str(camera_id)],
+                    ["python3", capture_frame_path, rtsp_url, str(camera_id), str(client_id), str(site_id)],
                     check=True
                 )
             )
@@ -82,3 +84,7 @@ query = (streaming_camera_df
 # COMMAND ----------
 
 print("---- END OF TASK ---")
+# import subprocess
+# # Call the external capture_frame.py script
+# capture_frame_path = "/dbfs/tmp/gaurdianvision/capture_frame.py"
+# subprocess.run(["python3", capture_frame_path, "rtsp://RTSP:Remote%4012345@197.243.236.48:554/Streaming/Channels/2", str(1), str(1), str(22)], check=True)
