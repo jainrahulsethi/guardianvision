@@ -156,7 +156,7 @@ class GuardianVisionAnalyzer:
             resized_image.save(buffered, format="PNG")
             return base64.b64encode(buffered.getvalue()).decode("utf-8")
         
-    def parse_llm_response(self, response):
+    def parse_llm_response(self, llm_response):
         try:
             # Extract the response content
             #llm_response = response.choices[0].message.content
