@@ -80,19 +80,22 @@ class GuardianVisionRAG:
             query_text=query_text
         )
 
-
         # Return the top result if available
         if result_set and result_set['result']['data_array']:
             return result_set['result']['data_array'][0][0]
         else:
             return "None"
-prompt = "Basis the given checklist, assign a safety score from 1 to 5. Use your intelligence to deduce the correct score. Judge only basis what you see. Your output should be strict python list [safety rating, one sentence description]. Here is the checklist: [['Hard Hats: Worn at all times on site. (Essential for head injury prevention)'], ['Harness Use: Required for workers at elevated locations. If no harness where required, the rating should be 2 or lower strictly (Critical for fall prevention)'], ['Guardrails and Nets: For areas where falls are a risk. (Necessary for height safety)'], ['LOTO Procedures: Lockout/tagout for live circuits. (Prevents electrical accidents)'], ['Respiratory Protection: Use if exposed to dust, fumes, or toxic substances. (Protects against inhalation hazards)'], ['Anchorage Points: Secure points for fall arrest equipment. (Supports safety when working at heights)'], ['Flammable Material Precautions: No open flames near flammable substances. (Fire prevention measure)'], ['Eye Protection: Safety goggles or face shields when needed. (Prevents eye injuries)'], ['Emergency Exits: Marked and unobstructed. (Essential for safe evacuation)'], ['Restricted Area Signage: Clear signs for hazardous zones. (Awareness to prevent entry into dangerous areas)'], ['High-Visibility Vests: Required for visibility. (Reduces risk of accidents)'], ['Ear Protection: Required in high-noise areas. (Protects hearing)'], ['Non-Slip Footwear: Essential for all workers. (Prevents slips and falls)'], ['Cover or Mark Floor Openings: To prevent falls. (Reduces fall hazards)'], ['Scaffold Training: Workers must be trained in safe practices. (Ensures scaffold safety)'], ['Scaffolding Access: Provide ladders or stairs for scaffold access. (Prevents falls when using scaffolds)'], ['Use of Slings, Chains, and Ropes: For lifting heavy materials safely. (Prevents injury during material handling)'], ['Proper Lifting Techniques: Bend knees, keep back straight. (Prevents strain anund injury)'], ['Chemical Handling Gloves: Specific types based on tasks. (Protects against chemical exposure)'], ['Electrical Work Gloves: Specific types based on tasks. (Prevents electrical shock)'], ['Sharp Object Handling Gloves: Specific types based on tasks. (Prevents cuts and punctures)'], ['High-Voltage Signage: Required around electrical equipment. (Warning against high voltage hazards)'], ['Barricades and Warnings: Around excavation sites. (Prevents accidental entry)'], ['Hazardous Substance Labeling: Proper labeling and storage. (Minimizes exposure risks)'], ['Vibration-Reducing Gloves/Tools: Use for high-vibration tasks. (Reduces vibration exposure)'], ['Cord Protection: Prevent damage and keep cords clear of walkways. (Reduces tripping hazards)'], ['Workstation Adjustments: For worker comfort where applicable. (Improves ergonomics)'], ['Waste Disposal: Proper handling of hazardous and non-hazardous materials. (Maintains site hygiene and safety)']]"
 
 # COMMAND ----------
 
+from PIL import Image
 import base64
+import io
+
 from openai import OpenAI
 import os
+import json
+import re
 
 class GuardianVisionAnalyzer:
     """
@@ -122,9 +125,24 @@ class GuardianVisionAnalyzer:
         """
         return dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
 
+    def _resize_image_if_needed(self, image):
+        """
+        Resizes the image to a maximum resolution of 1024x768 if it exceeds these dimensions.
+        
+        Parameters:
+            image (PIL.Image.Image): The image to be resized.
+        
+        Returns:
+            PIL.Image.Image: The resized image if necessary, otherwise the original image.
+        """
+        max_width, max_height = 1024, 768
+        if image.width > max_width or image.height > max_height:
+            image.thumbnail((max_width, max_height))
+        return image
+
     def _encode_image(self, image_path):
         """
-        Encodes the image as a base64 string.
+        Encodes the image as a base64 string after resizing if necessary.
         
         Parameters:
             image_path (str): Path to the image file.
@@ -132,8 +150,63 @@ class GuardianVisionAnalyzer:
         Returns:
             str: The base64 encoded string of the image.
         """
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode("utf-8")
+        with Image.open(image_path) as image:
+            resized_image = self._resize_image_if_needed(image)
+            buffered = io.BytesIO()
+            resized_image.save(buffered, format="PNG")
+            return base64.b64encode(buffered.getvalue()).decode("utf-8")
+        
+    def parse_llm_response(self, response):
+        try:
+            # Extract the response content
+            #llm_response = response.choices[0].message.content
+
+            # Remove the code block markers
+            cleaned_response = re.sub(r"```(?:json)?", "", llm_response).strip()
+
+            # Attempt to parse the cleaned JSON string
+            response_dict = json.loads(cleaned_response)
+            
+            return response_dict
+
+        except (json.JSONDecodeError, AttributeError) as e:
+            # Handle invalid JSON or unexpected output
+            print("Warning: Unexpected response format. Returning None.")
+            print(f"Error details: {e}")
+            return None
+
+    def generate_description_for_prompt(self, image_path):
+        """
+        Analyzes the image using OpenAI's GPT model and returns the response based on the provided prompt.
+        
+        Parameters:
+            image_path (str): Path to the image file to be analyzed.
+            prompt (str): The user-defined prompt/question to query the image.
+        
+        Returns:
+            str: The response content from the OpenAI model.
+        """
+        base64_image = self._encode_image(image_path)
+        
+        # Send request with image and dynamic text prompt
+        response = self.client.chat.completions.create(
+            model="gpt4o",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that reads images!"},
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Generate a one line description for the activity in the image below. For example: Construction activity with scaffold and heavy machinery operation"},
+                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}}
+                    ]
+                }
+            ],
+            temperature=0.0,
+        )
+
+        llm_response =  response.choices[0].message.content
+    
+        return llm_response
 
     def analyze_image(self, image_path, prompt):
         """
@@ -164,7 +237,10 @@ class GuardianVisionAnalyzer:
             temperature=0.0,
         )
 
-        return response.choices[0].message.content
+        llm_response =  response.choices[0].message.content
+    
+        return self.parse_llm_response(llm_response)
+
 
 
 # COMMAND ----------
