@@ -62,16 +62,7 @@ This project includes an automated workflow configuration file, [guardianvision_
 
 After creating the workflow, you can start it manually or set it up to run on a schedule. Each task will execute in the order specified by the depends_on dependencies, ensuring proper task sequencing.
 
-
 ### Set up your camera feeds and configure the app using the provided templates.
-
-## Usage
-
-After installation, you can launch the app with the following command:
-```bash
-python guardianvision.py
-```
-The app will start monitoring the video feeds and generate alerts for any detected safety violations based on the checklists you've set up.
 
 ## Citation
 
