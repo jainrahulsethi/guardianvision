@@ -14,11 +14,11 @@ config = {
     "api": {
         "key": "your_api_key",
         "endpoint": "https://adb-3971841089204274.14.azuredatabricks.net/serving-endpoints",
-        "capture_frame_path":"/dbfs/tmp/gaurdianvision/capture_frame.py",
+        "capture_frame_path":"/dbfs/tmp/guardianvision/capture_frame.py",
         "timeout": 30  # Timeout in seconds
     },
-    "gaurdianvision": {
-        "checkpoint_loc": "/dbfs/tmp/gaurdianvision/temp_checkpoint",
+    "guardianvision": {
+        "checkpoint_loc": "/dbfs/tmp/guardianvision/temp_checkpoint",
         "checkpoint_path_adls_to_bus" : "/mnt/checkpoint/guardianvision",
         "query_text": "Safety checklist for construction activity with scaffolding and heavy machinery",
         "output_path": "output/",
@@ -45,4 +45,4 @@ config = {
 # Accessing the Configuration Values
 # print("ABUS Endpoint:", config["abus"]["endpoint"])
 # print("ADLS Account Name:", config["adls"]["account_name"])
-# print("Guardian Vision Checkpoint Location:", config["gaurdianvision"]["checkpoint_loc"])
+# print("Guardian Vision Checkpoint Location:", config["guardianvision"]["checkpoint_loc"])

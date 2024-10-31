@@ -48,7 +48,7 @@ import os
 access_id = dbutils.secrets.get(scope="guardian_connection_str", key="kf_access_id")
 secret_id = dbutils.secrets.get(scope="guardian_connection_str", key="kf_secret_id")
 
-url = config["gaurdianvision"]["kissflow_url"]
+url = config["guardianvision"]["kissflow_url"]
 # Example DataFrame with column names matching your JSON payload requirements
 # Replace this with the actual loading of your DataFrame
 

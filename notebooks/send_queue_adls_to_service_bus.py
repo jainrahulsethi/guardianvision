@@ -75,7 +75,7 @@ def transform_and_send(batch_df, batch_id):
     send_batch_to_service_bus(transformed_df, batch_id)
 
 # Define the checkpoint path
-checkpoint_path = config['gaurdianvision']['checkpoint_path_adls_to_bus']
+checkpoint_path = config['guardianvision']['checkpoint_path_adls_to_bus']
 
 # Stream data to Azure Service Bus using foreachBatch with checkpointing
 query = image_stream.writeStream \

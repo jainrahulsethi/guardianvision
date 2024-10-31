@@ -9,7 +9,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 capture_frame_path = config["api"]["capture_frame_path"]
-checkpoint_loc  = config["gaurdianvision"]["checkpoint_loc"]
+checkpoint_loc  = config["guardianvision"]["checkpoint_loc"]
 
 # COMMAND ----------
 

@@ -44,7 +44,7 @@ def capture_frame(rtsp_url, camera_id, client_id, site_id):
             # Define the file path to save
             timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
             adls_base_path = "/mnt/retaildls/guardianvision"
-            frame_path = f"/dbfs/tmp/gaurdianvision/frame_data/frame_{camera_id}_{timestamp}.jpg"
+            frame_path = f"/dbfs/tmp/guardianvision/frame_data/frame_{camera_id}_{timestamp}.jpg"
             cv2.imwrite(frame_path, frame)
             file_name = f"frame_{site_id}_{camera_id}_{timestamp}.jpg"
             save_to_dls(frame_path, client_id, file_name)
