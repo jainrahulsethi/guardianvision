@@ -104,9 +104,9 @@ If you use this project or datasets in your work, please cite the following:
 
 ## License and Attribution
 
-This project uses the following datasets and resources:
-
-- **Construction Site Dataset**
-
 ### License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+We’ve adapted certain functions and ideas from this repository [Databricks GenAI Cookbook](https://github.com/databricks/genai-cookbook) to meet the specific needs of this project, providing a solid foundation for integrating GenAI capabilities within Databricks.

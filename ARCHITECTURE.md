@@ -9,9 +9,9 @@ This document provides a detailed breakdown of each component within the Guardia
 
 **Description**: "First, our system begins with the scalable integration of camera feeds and frame storage. Administrators onboard cameras by entering details like the RTSP connection string, camera ID, and site ID, typically through Kissflow. This onboarding process standardizes camera setup and ensures smooth integration with our system, though we also support alternative platforms for flexibility.
 
-Once cameras are onboarded, our system captures frames from each feed at 30-second intervals using Spark Streaming within Databricks. This interval is configurable to meet specific monitoring requirements. Captured frames are stored in Azure Data Lake Storage (ADLS), providing reliable storage for access and retrieval.
+Once cameras are onboarded, our system captures frames from each feed at 30-second intervals using Spark Streaming within Databricks. This interval is configurable to meet specific monitoring requirements. Captured frames are stored in Azure Data Lake Storage (ADLS), providing a highly scalable and reliable data storage solution, facilitating efficient access and retrieval for subsequent processing and analysis.
 
-The frames stored in ADLS are then incrementally read using Databricks Autoloader, which pulls new data as it becomes available. The Autoloader scales automatically to accommodate increased data flows from additional cameras. After retrieving frames, Autoloader pushes them in real time to a message queue in Azure Service Bus, setting the foundation for efficient batch processing downstream."
+The frames stored in ADLS are then incrementally read using Databricks Autoloader, which pulls new data as it becomes available. The Autoloader scales automatically to accommodate increased data flows from additional cameras. After retrieving frames, Autoloader pushes them in real time to a message queue in Azure Service Bus. This design decouples the data ingestion process from downstream multimodal LLM processing, establishing an efficient and scalable data pipeline."
 
 ---
 
