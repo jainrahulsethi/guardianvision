@@ -4,8 +4,12 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
+# MAGIC %run ../guardianvision/configs/config
+
+# COMMAND ----------
+
 capture_frame_path = "/dbfs/tmp/gaurdianvision/capture_frame.py"
-checkpoint_loc  = "/dbfs/tmp/gaurdianvision/temp_checkpoint"
+checkpoint_loc  = config["gaurdianvision"]["checkpoint_loc"]
 
 # COMMAND ----------
 

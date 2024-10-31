@@ -246,23 +246,23 @@ class GuardianVisionAnalyzer:
 
 # COMMAND ----------
 
-# Example usage
-if __name__ == "__main__":
+# # Example usage
+# if __name__ == "__main__":
 
-    #STEP 1:- First analyze the RAG search to find out the correct safety checklist
-    rag_search = GuardianVisionRAG()
-    query_text = "Safety checklist for Construction activity with scaffold and heavy machinery operation"
-    result = rag_search.perform_search(query_text)
-    #print("Search Result:\n", result)
+#     #STEP 1:- First analyze the RAG search to find out the correct safety checklist
+#     rag_search = GuardianVisionRAG()
+#     query_text = "Safety checklist for Construction activity with scaffold and heavy machinery operation"
+#     result = rag_search.perform_search(query_text)
+#     #print("Search Result:\n", result)
 
-    #STEP 2:- In case the result is not found, then use another LLM to find out the correct safety checklist basis LLM
-    #TBD
+#     #STEP 2:- In case the result is not found, then use another LLM to find out the correct safety checklist basis LLM
+#     #TBD
 
-    #STEP 3:- Use output from Step 1 to form a correct prompt and pass it to the Image Analyzer
+#     #STEP 3:- Use output from Step 1 to form a correct prompt and pass it to the Image Analyzer
 
-    image_analyzer = GuardianVisionAnalyzer(
-        api_base_url="https://adb-3971841089204274.14.azuredatabricks.net/serving-endpoints"
-    )
-    #image_path = "/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_data_construction/unsafe/002564baec48136553cf02.jpg"
+#     image_analyzer = GuardianVisionAnalyzer(
+#         api_base_url="https://adb-3971841089204274.14.azuredatabricks.net/serving-endpoints"
+#     )
+#     #image_path = "/Workspace/Users/rahul.jain@pumaenergy.com/guardianvision/test_data_construction/unsafe/002564baec48136553cf02.jpg"
 
 

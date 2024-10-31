@@ -1,0 +1,44 @@
+resources:
+  jobs:
+    Guardian_Vision:
+      name: Guardian Vision
+      tasks:
+        - task_key: stream_camera_data
+          notebook_task:
+            notebook_path: /Workspace/Users/akshay.nalawade@pumaenergy.com/guardianvision/stream_cameradata
+            source: WORKSPACE
+          job_cluster_key: GuardianVision
+        - task_key: send_message_to_service_bus
+          depends_on:
+            - task_key: stream_camera_data
+          notebook_task:
+            notebook_path: /Workspace/Users/akshay.nalawade@pumaenergy.com/guardianvision/notebooks/send_queue_adls_to_service_bus
+            source: WORKSPACE
+          job_cluster_key: GuardianVision
+        - task_key: read_queue_from_servicebus_to_LLM
+          depends_on:
+            - task_key: send_message_to_service_bus
+          notebook_task:
+            notebook_path: /Workspace/Users/akshay.nalawade@pumaenergy.com/guardianvision/notebooks/read_from_service_bus_to_LLM
+            source: WORKSPACE
+          job_cluster_key: GuardianVision
+      job_clusters:
+        - job_cluster_key: GuardianVision
+          new_cluster:
+            cluster_name: ""
+            spark_version: 15.4.x-scala2.12
+            azure_attributes:
+              first_on_demand: 1
+              availability: ON_DEMAND_AZURE
+              spot_bid_max_price: -1
+            node_type_id: Standard_DS3_v2
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+            enable_elastic_disk: true
+            data_security_mode: USER_ISOLATION
+            runtime_engine: STANDARD
+            num_workers: 1
+      queue:
+        enabled: true
+      run_as:
+        user_name: rahul.jain@pumaenergy.com
