@@ -58,6 +58,10 @@ git clone https://github.com/yourusername/guardianvision.git
 
 This project includes an automated workflow configuration file, [guardianvision_workflow.yml](#), which orchestrates the execution of all project notebooks in the correct sequence. The guardianvision_workflow.yml file is located in the root folder of this repository. This file defines the tasks, dependencies, and execution order for each notebook in the project, automating the end-to-end process from data ingestion to model inference. To run this workflow in Databricks, you can use either the Databricks UI, CLI, or REST API.
 
+### Running the Workflow
+
+After creating the workflow, you can start it manually or set it up to run on a schedule. Each task will execute in the order specified by the depends_on dependencies, ensuring proper task sequencing.
+
 
 ### Set up your camera feeds and configure the app using the provided templates.
 
