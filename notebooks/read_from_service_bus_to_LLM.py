@@ -20,6 +20,8 @@ from datetime import datetime
 from pyspark.sql.functions import current_timestamp, col
 
 api_base_url = config["api"]["endpoint"]
+client_master = config["tables"]["client_master"]
+safety_assessment = config["tables"]["safety_assessment"]
 
 rag_search = GuardianVisionRAG()
 data_rows = []
@@ -27,7 +29,7 @@ max_rows_before_save = 10
 
 
 # Read data from the table
-client_df = spark.sql("SELECT cam_id, client_id, site_id, prompt_to_use, activity_description FROM guardianvision.client_data WHERE is_active = TRUE").collect()
+client_df = spark.sql(f"SELECT cam_id, client_id, site_id, prompt_to_use, activity_description FROM {client_master} WHERE is_active = TRUE").collect()
 
 # Convert client_df to a dictionary for easier access
 client_data_dict = {(row.site_id, row.cam_id, row.client_id): (row.prompt_to_use, row.activity_description) for row in client_df}
@@ -50,7 +52,7 @@ def save_data_to_dataframe():
             StructField("safety_violation_category", StringType(), True),
             StructField("one_sentence_description", StringType(), True)])
         df = spark.createDataFrame(data_rows,schema).withColumn("Last_updated_On", current_timestamp()).withColumn("cam_id", col("cam_id").cast("int")).withColumn("safety_rating", col("safety_rating").cast("int")).withColumnRenamed('one_sentence_description','description').withColumn("site_id", col("site_id").cast("int")).withColumn("safety_rating", col("safety_rating").cast("int"))
-        df.write.mode("append").format("delta").saveAsTable("guardianvision.safety_assessment_log")
+        df.write.mode("append").format("delta").saveAsTable(safety_assessment)
         data_rows = []
 
 def process_with_llm(message_body):
@@ -75,28 +77,24 @@ def process_with_llm(message_body):
 
         # Extract client_id from the image path
         client_id = image_path.split("/")[-2]
-        print(client_id,site_id,cam_id)
 
         # Check if site_id, cam_id, and client_id exist in client_data_dict
         prompt_to_use, activity_description = client_data_dict.get((int(site_id), int(cam_id), int(client_id)), (None, None))
 
         if prompt_to_use:
-            print("inside prompt if")
             # Use the available prompt directly
             prompt = "Based on the provided checklist, assign a safety score from 1 to 5. Assess only what is visible in the image, and avoid penalizing for items that may not be captured due to camera limitations. For unsafe cases, the rating should be only 1 or 2 and for safe 4 or 5. Your response should be a JSON object with the following keys: safety_rating, safety_violation_category (optional, may be null if no violation is detected), and one_sentence_description. Here is the checklist: " + prompt_to_use
         elif activity_description:
-            print("inside activity description")
             # Use the activity description if available
             query_text = activity_description
             result = rag_search.perform_search(query_text)
             prompt = "Based on the provided checklist, assign a safety score from 1 to 5. Assess only what is visible in the image, and avoid penalizing for items that may not be captured due to camera limitations. For unsafe cases, the rating should be only 1 or 2 and for safe 4 or 5. Your response should be a JSON object with the following keys: safety_rating, safety_violation_category (optional, may be null if no violation is detected), and one_sentence_description. Here is the checklist: " + result
             spark.sql(f"""
-                UPDATE guardianvision.client_data 
+                UPDATE {client_master}
                 SET prompt_to_use = '{result}' 
                 WHERE site_id = {site_id} AND cam_id = {cam_id} AND client_id = {client_id}
                 """)
         else:
-            print("inside default")
             # Use hardcoded query_text if neither is available
             query_text = "Safety checklist for construction activity with scaffolding and heavy machinery"
             result = rag_search.perform_search(query_text)
@@ -104,7 +102,6 @@ def process_with_llm(message_body):
 
         # Analyze image and retrieve result JSON
         result_str = analyzer_instance.analyze_image(image_path, prompt)
-        print(result_str)
         data_rows.append({
             "image_path": image_path,
             "client_id": client_id,

@@ -4,11 +4,11 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
-# MAGIC %run ../guardianvision/configs/config
+# MAGIC %run ../guardianvision_v2/configs/config
 
 # COMMAND ----------
 
-capture_frame_path = "/dbfs/tmp/gaurdianvision/capture_frame.py"
+capture_frame_path = config["api"]["capture_frame_path"]
 checkpoint_loc  = config["gaurdianvision"]["checkpoint_loc"]
 
 # COMMAND ----------
@@ -20,12 +20,12 @@ import subprocess
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime, timedelta
 
-
+client_table = config["tables"]["client_master"]
 # Initialize Spark session
 spark = SparkSession.builder.appName("CameraStreaming").getOrCreate()
 
 # Read data from the table
-camera_df = spark.sql("SELECT cam_id, rtsp_url, client_id, site_id FROM guardianvision.client_data WHERE is_active = TRUE")
+camera_df = spark.sql(f"SELECT cam_id, rtsp_url, client_id, site_id FROM {client_table} WHERE is_active = TRUE")
 
 # Show the results
 camera_df.show()

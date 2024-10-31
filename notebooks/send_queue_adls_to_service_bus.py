@@ -4,6 +4,10 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
+# MAGIC %run ../configs/config
+
+# COMMAND ----------
+
 # DBTITLE 1,read incremental data from adls to service bus
 from pyspark.sql.types import StructType, StringType, TimestampType, LongType, BinaryType
 from azure.servicebus import ServiceBusClient, ServiceBusMessage
@@ -11,6 +15,7 @@ import json
 import uuid
 from pyspark.sql.functions import regexp_extract, concat_ws
 
+adls_base_path = config['adls']['adls_base_path']
 # Define schema for the binary file metadata
 schema = StructType() \
     .add("path", StringType()) \
@@ -54,7 +59,7 @@ image_stream = (
     .option("cloudFiles.includeExistingFiles", "true")  # Include existing files on the first run
     .option("cloudFiles.useIncrementalListing", "true")  # Enable incremental listing
     .schema(schema)
-    .load("/mnt/retaildls/guardianvision/frame_data/*")  # Use wildcard to include all subdirectories
+    .load(adls_base_path)  # Use wildcard to include all subdirectories
 )
 
 # Prepare the DataFrame with necessary transformations
@@ -70,7 +75,7 @@ def transform_and_send(batch_df, batch_id):
     send_batch_to_service_bus(transformed_df, batch_id)
 
 # Define the checkpoint path
-checkpoint_path = "/mnt/checkpoint/guardianvision"
+checkpoint_path = config['gaurdianvision']['checkpoint_path_adls_to_bus']
 
 # Stream data to Azure Service Bus using foreachBatch with checkpointing
 query = image_stream.writeStream \

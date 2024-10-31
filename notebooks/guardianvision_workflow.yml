@@ -5,21 +5,21 @@ resources:
       tasks:
         - task_key: stream_camera_data
           notebook_task:
-            notebook_path: /Workspace/Users/akshay.nalawade@pumaenergy.com/guardianvision/stream_cameradata
+            notebook_path: ../guardianvision/stream_cameradata
             source: WORKSPACE
           job_cluster_key: GuardianVision
         - task_key: send_message_to_service_bus
           depends_on:
             - task_key: stream_camera_data
           notebook_task:
-            notebook_path: /Workspace/Users/akshay.nalawade@pumaenergy.com/guardianvision/notebooks/send_queue_adls_to_service_bus
+            notebook_path: ../notebooks/send_queue_adls_to_service_bus
             source: WORKSPACE
           job_cluster_key: GuardianVision
         - task_key: read_queue_from_servicebus_to_LLM
           depends_on:
             - task_key: send_message_to_service_bus
           notebook_task:
-            notebook_path: /Workspace/Users/akshay.nalawade@pumaenergy.com/guardianvision/notebooks/read_from_service_bus_to_LLM
+            notebook_path: ../notebooks/read_from_service_bus_to_LLM
             source: WORKSPACE
           job_cluster_key: GuardianVision
       job_clusters:
