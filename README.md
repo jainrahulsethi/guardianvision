@@ -54,10 +54,10 @@ For a detailed breakdown of each component in GuardianVision, see the [System Ar
 git clone https://github.com/yourusername/guardianvision.git
 ```
 
-### Install the required dependencies:
-```bash
-pip install -r requirements.txt
-```
+### Guardian Vision Workflow Setup:
+
+This project includes an automated workflow configuration file, [guardianvision_workflow.yml](#), which orchestrates the execution of all project notebooks in the correct sequence. The guardianvision_workflow.yml file is located in the root folder of this repository. This file defines the tasks, dependencies, and execution order for each notebook in the project, automating the end-to-end process from data ingestion to model inference. To run this workflow in Databricks, you can use either the Databricks UI, CLI, or REST API.
+
 
 ### Set up your camera feeds and configure the app using the provided templates.
 
